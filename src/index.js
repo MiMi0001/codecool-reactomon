@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import { useRouteError } from "react-router-dom";
 import { Outlet, Link } from "react-router-dom";
+import { Form, useLoaderData } from "react-router-dom";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -52,32 +53,39 @@ class NavBar extends React.Component {
     }
 }
 
+async function listLoader() {
+    let response = await axios.get(`https://pokeapi.co/api/v2/pokemon`);
+    return response.data['results'];
+}
 
-class PokemonList extends React.Component {
-    state = {
-        pokemons: []
-    }
+async function pokemonLoader({ params }){
+    let id = params.pokemonId;
+    let response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    return response.data;
+}
 
-    componentDidMount() {
-        axios.get(`https://pokeapi.co/api/v2/pokemon`)
-            .then(response => {
-                const pokemons = response.data['results'];
-                this.setState({ pokemons });
-            })
-    }
-
-    render() {
+function PokemonList() {
+    // state = {
+    //     pokemons: []
+    // }
+    //
+    // componentDidMount() {
+    //     axios.get(`https://pokeapi.co/api/v2/pokemon`)
+    //         .then(response => {
+    //             const pokemons = response.data['results'];
+    //             this.setState({ pokemons });
+    //         })
+    // }
+        let pokemons = useLoaderData();
         return (
             <ul>
                 {
-                    this.state.pokemons
-                        .map(pokemon =>
-                            <li key={pokemon.name}>{pokemon.name}:  {pokemon.url}</li>
+                    pokemons.map((pokemon, index) =>
+                            <li key={index}> <Link to={`/pokemon/${index+1}`}> {pokemon.name} </Link> </li>
                         )
                 }
             </ul>
         )
-    }
 }
 
 class TypeList extends React.Component{
@@ -103,8 +111,21 @@ class TypeList extends React.Component{
              </ul>
         )
     }
+}
 
+function PokemonDetail() {
+    let pokemon = useLoaderData();
+    let image_url = pokemon.sprites.front_default;
 
+    return (
+        <div>
+            <h4> Name: {pokemon.name}</h4>
+            <h4> Height: {pokemon.height}</h4>
+            <h4> Weight: {pokemon.weight}</h4>
+            <h4> Base experience: {pokemon.base_experience}</h4>
+            <img src={image_url} width="250"></img>
+        </div>
+    )
 }
 
 
@@ -116,11 +137,17 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "/pokemons",
-                element: <PokemonList />
+                element: <PokemonList />,
+                loader: listLoader
             },
             {
                 path: "/types",
                 element: <TypeList />
+            },
+            {
+                path: "/pokemon/:pokemonId",
+                element:<PokemonDetail />,
+                loader: pokemonLoader
             }
         ]
     },
