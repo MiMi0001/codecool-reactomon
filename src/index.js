@@ -9,7 +9,7 @@ import {
     RouterProvider,
 } from "react-router-dom";
 import { useRouteError } from "react-router-dom";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -45,8 +45,8 @@ class NavBar extends React.Component {
     render() {
         return (
             <ul>
-                <li> <a href={"/pokemons"}> Pokemons </a> </li>
-                <li>Types </li>
+                <li> <Link to={"/pokemons"}> Pokemons </Link> </li>
+                <li> <Link to={"/types"}> Types </Link></li>
             </ul>
         );
     }
@@ -80,6 +80,34 @@ class PokemonList extends React.Component {
     }
 }
 
+class TypeList extends React.Component{
+    state = {
+        types : []
+    }
+
+    componentDidMount() {
+        axios.get("https://pokeapi.co/api/v2/type").then((response)=> {
+            let types = response.data['results'];
+            this.setState({types: types});
+        });
+    }
+
+    render() {
+        return(
+             <ul>
+                 {this.state.types
+                     .map((type, index)=>
+                        <li key={index}> {type.name} </li>
+                     )
+                 }
+             </ul>
+        )
+    }
+
+
+}
+
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -89,8 +117,11 @@ const router = createBrowserRouter([
             {
                 path: "/pokemons",
                 element: <PokemonList />
+            },
+            {
+                path: "/types",
+                element: <TypeList />
             }
-
         ]
     },
 
