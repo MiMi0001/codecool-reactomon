@@ -25,20 +25,18 @@ function ErrorPage() {
 }
 
 
-class PokemonApp extends React.Component {
-    render() {
-        return (
-            <div>
-                <div id ="nav">
-                    <NavBar />
-                </div>
-
-                <div id = "content">
-                    <Outlet />
-                </div>
+function PokemonApp() {
+    return (
+        <div>
+            <div id ="nav">
+                <NavBar />
             </div>
-         )
-    }
+
+            <div id = "content">
+                <Outlet />
+            </div>
+        </div>
+     )
 }
 
 
@@ -127,7 +125,6 @@ function PokemonDetail() {
         </div>
     )
 }
-
 
 const router = createBrowserRouter([
     {
