@@ -1,16 +1,91 @@
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 import axios from "axios";
 import {
     createBrowserRouter,
     RouterProvider,
 } from "react-router-dom";
-import { useRouteError } from "react-router-dom";
-import { Outlet, Link } from "react-router-dom";
-import { Form, useLoaderData } from "react-router-dom";
+import {useRouteError} from "react-router-dom";
+import {Outlet, Link} from "react-router-dom";
+import {Form, useLoaderData} from "react-router-dom";
+import styled from "styled-components";
+
+
+const MainDiv = styled.div`
+  background-image: linear-gradient(to left, burlywood, goldenrod);
+`
+
+const ContainerDiv = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: start;
+  height: 550px;
+`
+
+const CardDiv = styled.div`
+    background-image: linear-gradient(to left, palegoldenrod, lightseagreen);
+    border-radius: 25px;
+    background-color: mediumpurple;
+    color: wheat;
+    width: 150px;
+    height: 150px;
+    text-align: center;
+    font-size: 1.5em;
+    border-style: groove;
+    border-width: 7px;
+    border-color: goldenrod;
+    margin: 10px;
+`
+
+const NavDiv = styled.div`
+    background-image: linear-gradient(to left, palegoldenrod, lightseagreen);
+    font-size: 1.5em;
+    height: 100px;
+    
+`
+
+const NavButton = styled.button`
+    background-image: linear-gradient(to left, coral, lightseagreen);
+    border-radius: 25px;
+    border-style: groove;
+    border-width: 10px;
+    border-color: coral;
+    color: white;
+    font-size: 1.5em;
+    margin: 25px;
+`
+
+async function pokemonListLoader() {
+    let response = await axios.get(`https://pokeapi.co/api/v2/pokemon`);
+    let pokemons = response.data['results'];
+
+    for (let i=0; i<pokemons.length; i++) {
+        let detailResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${i + 1}`);
+        let detailData = detailResponse.data;
+        let image_url = detailData.sprites.front_default;
+        pokemons[i]["image"]=image_url;
+    }
+
+    return response.data['results'];
+}
+
+
+async function typeListLoader() {
+    let response = await axios.get("https://pokeapi.co/api/v2/type");
+    return await response.data['results'];
+
+}
+
+
+async function pokemonLoader({params}) {
+    let id = params.pokemonId;
+    let response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    return response.data;
+}
+
 
 function ErrorPage() {
     const error = useRouteError();
@@ -25,44 +100,30 @@ function ErrorPage() {
 }
 
 
-class PokemonApp extends React.Component {
-    render() {
-        return (
-            <div>
-                <div id ="nav">
-                    <NavBar />
-                </div>
-
-                <div id = "content">
-                    <Outlet />
-                </div>
+function PokemonApp() {
+    return (
+        <MainDiv>
+            <div id="nav">
+                <NavBar/>
             </div>
-         )
-    }
+
+            <div id="content">
+                <Outlet/>
+            </div>
+        </MainDiv>
+    )
 }
 
 
-class NavBar extends React.Component {
-    render() {
-        return (
-            <ul>
-                <li> <Link to={"/pokemons"}> Pokemons </Link> </li>
-                <li> <Link to={"/types"}> Types </Link></li>
-            </ul>
-        );
-    }
+function NavBar() {
+    return (
+        <NavDiv>
+            <NavButton> <Link to={"/pokemons"}> Pokemons </Link> </NavButton>
+            <NavButton> <Link to={"/types"}> Types </Link> </NavButton>
+        </NavDiv>
+    );
 }
 
-async function listLoader() {
-    let response = await axios.get(`https://pokeapi.co/api/v2/pokemon`);
-    return response.data['results'];
-}
-
-async function pokemonLoader({ params }){
-    let id = params.pokemonId;
-    let response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
-    return response.data;
-}
 
 function PokemonList() {
     // state = {
@@ -76,41 +137,32 @@ function PokemonList() {
     //             this.setState({ pokemons });
     //         })
     // }
-        let pokemons = useLoaderData();
-        return (
-            <ul>
-                {
-                    pokemons.map((pokemon, index) =>
-                            <li key={index}> <Link to={`/pokemon/${index+1}`}> {pokemon.name} </Link> </li>
-                        )
-                }
-            </ul>
-        )
+    let pokemons = useLoaderData();
+    return (
+        <ContainerDiv>
+            {
+                pokemons.map((pokemon, index) =>
+                    <CardDiv>
+                        <Link to={`/pokemon/${index + 1}`}> {pokemon.name} </Link>
+                        <img src={pokemon.image}/>
+                    </CardDiv>)
+            }
+        </ContainerDiv>
+    )
 }
 
-class TypeList extends React.Component{
-    state = {
-        types : []
-    }
 
-    componentDidMount() {
-        axios.get("https://pokeapi.co/api/v2/type").then((response)=> {
-            let types = response.data['results'];
-            this.setState({types: types});
-        });
-    }
 
-    render() {
-        return(
-             <ul>
-                 {this.state.types
-                     .map((type, index)=>
-                        <li key={index}> {type.name} </li>
-                     )
-                 }
-             </ul>
-        )
-    }
+function TypeList() {
+    let types = useLoaderData();
+    return (
+        <ul>
+            {types.map((type, index) =>
+                <li key={index}> {type.name} </li>
+            )
+            }
+        </ul>
+    )
 }
 
 function PokemonDetail() {
@@ -128,25 +180,25 @@ function PokemonDetail() {
     )
 }
 
-
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <PokemonApp />,
-        errorElement: <ErrorPage />,
+        element: <PokemonApp/>,
+        errorElement: <ErrorPage/>,
         children: [
             {
                 path: "/pokemons",
-                element: <PokemonList />,
-                loader: listLoader
+                element: <PokemonList/>,
+                loader: pokemonListLoader
             },
             {
                 path: "/types",
-                element: <TypeList />
+                element: <TypeList/>,
+                loader: typeListLoader
             },
             {
                 path: "/pokemon/:pokemonId",
-                element:<PokemonDetail />,
+                element: <PokemonDetail/>,
                 loader: pokemonLoader
             }
         ]
@@ -157,10 +209,10 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-root.render( <React.StrictMode>
-            <RouterProvider router={router} />
-            </React.StrictMode>
-            );
+root.render(<React.StrictMode>
+        <RouterProvider router={router}/>
+    </React.StrictMode>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
