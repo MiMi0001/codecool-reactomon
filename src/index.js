@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 import axios from "axios";
 import {
@@ -11,6 +10,8 @@ import {
 import {useRouteError} from "react-router-dom";
 import {Outlet, Link} from "react-router-dom";
 import {Form, useLoaderData} from "react-router-dom";
+
+
 
 function ErrorPage() {
     const error = useRouteError();
@@ -55,6 +56,7 @@ async function listLoader() {
     return response.data['results'];
 }
 
+
 async function pokemonLoader({params}) {
     let id = params.pokemonId;
     let response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
@@ -85,29 +87,23 @@ function PokemonList() {
     )
 }
 
-class TypeList extends React.Component {
-    state = {
-        types: []
-    }
 
-    componentDidMount() {
-        axios.get("https://pokeapi.co/api/v2/type").then((response) => {
-            let types = response.data['results'];
-            this.setState({types: types});
-        });
-    }
+async function typeListLoader() {
+    let response = await axios.get("https://pokeapi.co/api/v2/type");
+    return await response.data['results'];
 
-    render() {
-        return (
-            <ul>
-                {this.state.types
-                    .map((type, index) =>
-                        <li key={index}> {type.name} </li>
-                    )
-                }
-            </ul>
-        )
-    }
+}
+
+function TypeList() {
+    let types = useLoaderData();
+    return (
+        <ul>
+            {types.map((type, index) =>
+                    <li key={index}> {type.name} </li>
+                )
+            }
+        </ul>
+    )
 }
 
 function PokemonDetail() {
@@ -138,7 +134,8 @@ const router = createBrowserRouter([
             },
             {
                 path: "/types",
-                element: <TypeList/>
+                element: <TypeList/>,
+                loader: typeListLoader
             },
             {
                 path: "/pokemon/:pokemonId",
