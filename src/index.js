@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import {useRouteError} from "react-router-dom";
 import {Outlet, Link} from "react-router-dom";
-import {Form, useLoaderData} from "react-router-dom";
+import {useLoaderData} from "react-router-dom";
 import styled from "styled-components";
 
 
@@ -177,11 +177,6 @@ function ThemeButton() {
 }
 
 
-function themeButtonOnClickListener(){
-
-}
-
-
 function PokemonList() {
     // state = {
     //     pokemons: []
@@ -201,7 +196,7 @@ function PokemonList() {
                 pokemons.map((pokemon, index) =>
                     <CardDiv>
                         <Link to={`/pokemon/${index + 1}`}> {pokemon.name} </Link>
-                        <img src={pokemon.image}/>
+                        <img src={pokemon.image} alt=""/>
                     </CardDiv>)
             }
         </ContainerDiv>
@@ -234,7 +229,7 @@ function PokemonDetail() {
             <h4> Height: {pokemon.height}</h4>
             <h4> Weight: {pokemon.weight}</h4>
             <h4> Base experience: {pokemon.base_experience}</h4>
-            <img src={image_url} width="250"></img>
+            <img src={image_url} width="250" alt=""></img>
         </div>
     )
 }
