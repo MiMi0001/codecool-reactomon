@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
@@ -13,11 +13,14 @@ import {Form, useLoaderData} from "react-router-dom";
 import styled from "styled-components";
 
 
-const MainDiv = styled.div`
-  background-image: linear-gradient(to left, burlywood, goldenrod);
-`
+const ThemeContext = React.createContext(['light', ()=>{}]);
 
 const ContainerDiv = styled.div`
+  background-image: ${ () => {
+      let theme = useContext(ThemeContext)[0];
+      let result = (theme === 'light') ? "linear-gradient(to left, burlywood, goldenrod);" : "linear-gradient(to left, black, goldenrod);" 
+      return result
+      }}
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
@@ -26,37 +29,73 @@ const ContainerDiv = styled.div`
 `
 
 const CardDiv = styled.div`
-    background-image: linear-gradient(to left, palegoldenrod, lightseagreen);
+    background-image:  ${ () => {
+      let theme = useContext(ThemeContext)[0];
+      let result = (theme === 'light') ? "linear-gradient(to left, palegoldenrod, lightseagreen);" : "linear-gradient(to top, black, lightseagreen);"
+      return result
+    }}
     border-radius: 25px;
-    background-color: mediumpurple;
     color: wheat;
-    width: 150px;
-    height: 150px;
-    text-align: center;
-    font-size: 1.5em;
+    border-color: ${ () => {
+      let theme = useContext(ThemeContext)[0];
+      let result = (theme === 'light') ? "goldenrod;" : "darkslateblue;"
+      return result
+    }}
     border-style: groove;
     border-width: 7px;
-    border-color: goldenrod;
+    width: 150px;
+    height: 140px;
+    text-align: center;
+    font-size: 1.5em;
     margin: 10px;
 `
 
 const NavDiv = styled.div`
-    background-image: linear-gradient(to left, palegoldenrod, lightseagreen);
+    background-image: ${ () => {
+      let theme = useContext(ThemeContext)[0];
+      let result = (theme === 'light') ? "linear-gradient(to left, palegoldenrod, lightseagreen);" : "linear-gradient(to left, black, lightseagreen);"
+      return result
+    }}
     font-size: 1.5em;
-    height: 100px;
-    
+    height: 100px;   
 `
 
 const NavButton = styled.button`
     background-image: linear-gradient(to left, coral, lightseagreen);
+    color: white;
+    border-color: coral;
     border-radius: 25px;
     border-style: groove;
     border-width: 10px;
-    border-color: coral;
-    color: white;
     font-size: 1.5em;
     margin: 25px;
 `
+
+const StyledThemeButton = styled.button`
+    background-image: ${ () => {
+      let theme = useContext(ThemeContext)[0];
+      let result = (theme === 'light') ? "linear-gradient(to left, darkslateblue, black);" : "linear-gradient(to left, deepskyblue, navajowhite);"
+      return result
+    }}
+    color: ${ () => {
+      let theme = useContext(ThemeContext)[0];
+      let result = (theme === 'light') ? "yellowgreen;" : "darkblue;"
+      return result
+    }}
+    border-color: ${ () => {
+      let theme = useContext(ThemeContext)[0];
+      let result = (theme === 'light') ? "darkslateblue;" : "goldenrod;"
+      return result
+    }}
+    border-radius: 25px;
+    border-style: groove;
+    border-width: 10px;
+    font-size: 1.5em;
+    margin: 25px;
+    position: relative;
+    left: 800px;
+`
+
 
 async function pokemonListLoader() {
     let response = await axios.get(`https://pokeapi.co/api/v2/pokemon`);
@@ -101,16 +140,18 @@ function ErrorPage() {
 
 
 function PokemonApp() {
+    let theme = useState("light");
     return (
-        <MainDiv>
-            <div id="nav">
-                <NavBar/>
+        <ThemeContext.Provider value={theme}>
+            <div>
+                <div id="nav">
+                    <NavBar/>
+                </div>
+                <div id="content">
+                    <Outlet/>
+                </div>
             </div>
-
-            <div id="content">
-                <Outlet/>
-            </div>
-        </MainDiv>
+        </ThemeContext.Provider>
     )
 }
 
@@ -120,8 +161,24 @@ function NavBar() {
         <NavDiv>
             <NavButton> <Link to={"/pokemons"}> Pokemons </Link> </NavButton>
             <NavButton> <Link to={"/types"}> Types </Link> </NavButton>
+            <ThemeButton />
         </NavDiv>
     );
+}
+
+
+function ThemeButton() {
+    let [theme, setTheme] = useContext(ThemeContext);
+    return(
+        <StyledThemeButton onClick = { ()=> { setTheme( theme==='light' ? 'dark' : 'light') } } >
+            {theme === 'light' ? 'Dark' : 'Light'}
+        </StyledThemeButton>
+    )
+}
+
+
+function themeButtonOnClickListener(){
+
 }
 
 
@@ -156,12 +213,14 @@ function PokemonList() {
 function TypeList() {
     let types = useLoaderData();
     return (
-        <ul>
-            {types.map((type, index) =>
-                <li key={index}> {type.name} </li>
-            )
-            }
-        </ul>
+        <ContainerDiv>
+            <ul>
+                {types.map((type, index) =>
+                    <li key={index}> {type.name} </li>
+                )
+                }
+            </ul>
+        </ContainerDiv>
     )
 }
 
