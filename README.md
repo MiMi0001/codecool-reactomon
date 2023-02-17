@@ -1,3 +1,11 @@
+Netlify page:
+https://app.netlify.com/sites/fanciful-banoffee-654e30/overview
+
+Deployed to:
+https://fanciful-banoffee-654e30.netlify.app/
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

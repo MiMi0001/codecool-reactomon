@@ -25,7 +25,7 @@ const ContainerDiv = styled.div`
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: start;
-  height: 550px;
+  height: 700px;
 `
 
 const CardDiv = styled.div`
@@ -93,7 +93,7 @@ const StyledThemeButton = styled.button`
     font-size: 1.5em;
     margin: 25px;
     position: relative;
-    left: 800px;
+    left: 675px;
 `
 
 
