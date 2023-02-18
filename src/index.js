@@ -147,9 +147,9 @@ function PokemonApp() {
                 <div id="nav">
                     <NavBar/>
                 </div>
-                <div id="content">
+                <ContainerDiv id="content">
                     <Outlet/>
-                </div>
+                </ContainerDiv>
             </div>
         </ThemeContext.Provider>
     )
